@@ -90,9 +90,12 @@ object PythonRunner {
     try {
       val process = builder.start()
 
-      new RedirectThread(process.getInputStream, System.out, "redirect output").start()
+      val redirectThread = new RedirectThread(process.getInputStream, System.out, "redirect output")
+      redirectThread.start()
 
       val exitCode = process.waitFor()
+      redirectThread.join()
+
       if (exitCode != 0) {
         throw new SparkUserAppException(exitCode)
       }
